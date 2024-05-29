@@ -1,20 +1,17 @@
-
 terraform {
-#    cloud {
-#      organization = "minjun0707-terraform"         # 생성한 ORG 이름 지정
-#      hostname     = "app.terraform.io"      # default
-
-#      workspaces {
-#        name = "terraform-aws"  # 없으면 생성됨
-#      }
-#    }
-  required_version = "~> 1.3"
+  cloud {
+    organization = "minjun0707-terraform"
+    workspaces {
+      name = "terraform-aws"
+    }
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 3.28.0"
     }
   }
+  required_version = ">= 1.1.0"
 }
 
 provider "aws" {

@@ -1,6 +1,6 @@
-resource "aws_s3_bucket" "terrafrom-bucket-mj" {
+# S3 버킷
+resource "aws_s3_bucket" "www_bucket" {
   bucket = "terrafrom-bucket-mj"
-  acl = "public-read-write"
 
   tags = {
     Environment = "dev"
@@ -8,21 +8,21 @@ resource "aws_s3_bucket" "terrafrom-bucket-mj" {
 }
 
 
-# 버킷 정책
-resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
-  bucket = aws_s3_bucket.terrafrom-bucket-mj.id
-  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
+# 버킷 acl
+resource "aws_s3_bucket_acl" "bucket_acl" {
+  bucket = aws_s3_bucket.www_bucket.id
+  acl    = "public-read"
 }
 
 
 # CORS 규칙 설정
-resource "aws_s3_bucket_cors_configuration" "test" {
-  bucket = aws_s3_bucket.test.id
+resource "aws_s3_bucket_cors_configuration" "cors_config" {
+  bucket = aws_s3_bucket.www_bucket.id
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST"]
-    allowed_origins = ["https://s3-website-test.hashicorp.com"]
+    allowed_methods = ["PUT", "POST","GET"]
+    allowed_origins = ["*"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
@@ -33,23 +33,23 @@ resource "aws_s3_bucket_cors_configuration" "test" {
   }
 }
 
-# 정적 웹 사이트 호스팅
-resource "aws_s3_bucket_website_configuration" "test" {
-  bucket = aws_s3_bucket.test.id
+## 버킷 정책
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = aws_s3_bucket.www_bucket.id
 
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "error.html"
-  }
-
-  routing_rule {
-    condition {
-      key_prefix_equals = "docs/"
-    }
-    redirect {
-      replace_key_prefix_with = "documents/"
-    }
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = "*"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = [
+          "${aws_s3_bucket.www_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}

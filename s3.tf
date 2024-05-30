@@ -5,15 +5,22 @@ resource "aws_s3_bucket" "www_bucket" {
   tags = {
     Environment = "dev"
   }
+
 }
 
-
-# 버킷 acl
-resource "aws_s3_bucket_acl" "bucket_acl" {
+## 정적 웹사이트 호스팅
+resource "aws_s3_bucket_website_configuration" "example" {
   bucket = aws_s3_bucket.www_bucket.id
-  acl    = "public-read"
-}
 
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+
+}
 
 # CORS 규칙 설정
 resource "aws_s3_bucket_cors_configuration" "cors_config" {
@@ -21,7 +28,7 @@ resource "aws_s3_bucket_cors_configuration" "cors_config" {
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST","GET"]
+    allowed_methods = ["PUT","POST","GET"]
     allowed_origins = ["*"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
@@ -33,23 +40,22 @@ resource "aws_s3_bucket_cors_configuration" "cors_config" {
   }
 }
 
-## 버킷 정책
-resource "aws_s3_bucket_policy" "bucket_policy" {
+# 버킷 정책 설정
+resource "aws_s3_bucket_policy" "bucket-policy" {
   bucket = aws_s3_bucket.www_bucket.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect    = "Allow"
-        Principal = "*"
-        Action = [
-          "s3:GetObject"
-        ]
-        Resource = [
-          "${aws_s3_bucket.www_bucket.arn}/*"
-        ]
-      }
-    ]
-  })
+  policy = <<POLICY
+{
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Sid":"PublicRead",
+      "Effect":"Allow",
+      "Principal": "*",
+      "Action":["s3:GetObject"],
+      "Resource":["arn:aws:s3:::${aws_s3_bucket.www_bucket.id}/*"]
+    }
+  ]
+}
+POLICY
 }

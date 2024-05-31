@@ -54,6 +54,9 @@ resource "aws_s3_bucket_cors_configuration" "cors_config" {
 resource "aws_s3_bucket_policy" "bucket-policy" {
   bucket = aws_s3_bucket.www_bucket.id
 
+  # 퍼블릭 액세스 차단 해제 리소스 의존
+  depends_on = [aws_s3_bucket_public_access_block.public_access_block]
+
   policy = <<POLICY
 {
   "Version":"2012-10-17",
@@ -68,4 +71,24 @@ resource "aws_s3_bucket_policy" "bucket-policy" {
   ]
 }
 POLICY
+}
+
+
+
+# S3 버킷에 파일 업로드
+resource "aws_s3_object" "files" {
+  for_each = fileset("${path.module}/client/build", "**")
+
+  bucket = aws_s3_bucket.www_bucket.bucket
+  key    = each.value
+  source = "${path.module}/client/build/${each.value}"
+  etag   = filemd5("${path.module}/client/build/${each.value}")
+}
+
+# index.html 형식 지정
+resource "aws_s3_bucket_object" "index" {
+  bucket = aws_s3_bucket.www_bucket.bucket
+  key = "index.html"
+
+  content_type = "text/html"
 }

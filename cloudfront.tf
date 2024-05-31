@@ -39,7 +39,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   price_class = "PriceClass_All"
-
   # 지리적 제한: 특정 국가에서만 접근하도록 화이트리스트 작성
   restrictions {
     geo_restriction {
@@ -55,4 +54,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  # WAF 웹 ACL 연결
+  web_acl_id = aws_waf_web_acl.www_waf.id
 }

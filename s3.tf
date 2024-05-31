@@ -1,6 +1,6 @@
 # S3 버킷
 resource "aws_s3_bucket" "www_bucket" {
-  bucket = "terrafrom-bucket-mj"
+  bucket = "terraform-bucket-mj-test"
 
   tags = {
     Environment = "dev"
@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "www_bucket" {
 }
 
 ## 정적 웹사이트 호스팅
-resource "aws_s3_bucket_website_configuration" "example" {
+resource "aws_s3_bucket_website_configuration" "websit_config" {
   bucket = aws_s3_bucket.www_bucket.id
 
   index_document {
@@ -20,6 +20,16 @@ resource "aws_s3_bucket_website_configuration" "example" {
     key = "error.html"
   }
 
+}
+
+# 퍼블릭 액세스 차단 해제 비활성화
+resource "aws_s3_bucket_public_access_block" "public_access_block" {
+  bucket = aws_s3_bucket.www_bucket.id
+
+  block_public_acls   = false
+  block_public_policy = false
+  ignore_public_acls  = false
+  restrict_public_buckets = false
 }
 
 # CORS 규칙 설정

@@ -11,15 +11,10 @@ source "amazon-ebs" "ubuntu" {
   ami_name      = "packer-aws-ami"
   instance_type = "t2.micro"
   region        = "ap-northeast-2"
-  source_ami_filter {
-    filters = {
-      image-id = "ami-0e6f2b2fa0ca704d0"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    most_recent = true
-    owners      = ["099720109477"]  # Canonical의 공식 AWS 계정 ID
-  }
+  availability_zone = "ap-northeast-2a" 
+  vpc_id = "vpc-0e3e7a11a29eabf3e"
+  subnet_id = "subnet-0930b4793c1dc394e"
+  source_ami    = "ami-0e6f2b2fa0ca704d0"  # 특정 AMI ID를 직접 지정
   ssh_username = "ubuntu"
 }
 
@@ -29,11 +24,17 @@ build {
     "source.amazon-ebs.ubuntu"
   ]
 
+  hcp_packer_registry {
+    bucket_name = "aws-ami-packer"
+    description = "Description about the image being published."
+  }
+
   provisioner "shell" {
     environment_vars = [
       "FOO=hello world",
     ]
     inline = [
+      "sleep 30",
       "sudo apt-get update",
       "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",

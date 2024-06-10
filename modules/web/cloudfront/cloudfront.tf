@@ -1,9 +1,8 @@
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = aws_s3_bucket.www_bucket.bucket_domain_name
-    origin_id   = aws_s3_bucket.www_bucket.id
-
+    domain_name = var.domain_name
+    origin_id   = var.bucket_id
     custom_origin_config {
       http_port              = 80
       https_port             = 443
@@ -22,7 +21,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = aws_s3_bucket.www_bucket.id
+    target_origin_id = var.bucket_id
 
     forwarded_values {
       query_string = false
@@ -48,7 +47,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   tags = {
-    Environment = "dev"
+    Environment = var.tag_environment
   }
 
   viewer_certificate {
@@ -56,5 +55,5 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   # WAF 웹 ACL 연결
-  web_acl_id = aws_waf_web_acl.www_waf.id
+  web_acl_id = var.waf_id
 }

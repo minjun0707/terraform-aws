@@ -46,3 +46,21 @@ resource "aws_lb_target_group" "tg" {
     unhealthy_threshold = 2
   } 
 }
+
+
+# target group을 listener와 연결
+resource "aws_lb_listener_rule" "http_rule" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/*"]
+    }
+  }
+}

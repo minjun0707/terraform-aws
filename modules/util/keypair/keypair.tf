@@ -3,12 +3,12 @@ resource "tls_private_key" "private_key" {
   rsa_bits  = 2048
 }
 
-data "aws_key_pair" "existing_keypair" {
-  key_name = var.key_name
-}
+# data "aws_key_pair" "existing_keypair" {
+#   key_name = var.key_name
+# }
 
 resource "aws_key_pair" "aws_keypair" {
-  count      = length(data.aws_key_pair.existing_keypair.id) == 0 ? 1 : 0
+  # count      = length(data.aws_key_pair.existing_keypair.id) == 0 ? 1 : 0
   key_name   = var.key_name
   public_key = tls_private_key.private_key.public_key_openssh
 }

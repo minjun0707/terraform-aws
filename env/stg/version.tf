@@ -11,7 +11,7 @@ terraform {
     organization = "minjun0707-terraform"
 
     workspaces {
-      name = "terraform-aws-dev"
+      name = "terraform-aws-stg"
     }
   }
 }

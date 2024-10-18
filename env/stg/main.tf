@@ -12,10 +12,10 @@ module "stg_key_pair" {
 module "stg_s3" {
   source = "../../modules/web/s3"
 
-  bucket_name          = "terraform-web-stg-minjun"
+  bucket_name          = var.stg_bucket_name
   index_document_suffix = "index.html"
   error_document_key   = "error.html"
-  tag_environment      = "stg"
+  tag_environment      = var.stg_tag
 }
 
 
@@ -25,7 +25,7 @@ module "stg_cloudfront" {
   domain_name = module.stg_s3.bucket_domain_name
   bucket_id = module.stg_s3.bucket_id
   waf_id = module.stg_waf.waf_id
-  tag_environment = "stg"
+  tag_environment = var.stg_tag
 }
 
 module "stg_waf" {
@@ -34,7 +34,7 @@ module "stg_waf" {
 
 module "stg_network" {
   source          = "../../modules/network"
-  tag_environment = "stg"
+  tag_environment = var.stg_tag
 }
 
 
@@ -44,7 +44,7 @@ module "stg_alb" {
   vpc_id            = module.stg_network.vpc_id
   alb_sg_id         = module.stg_network.sg_alb_id
   public_subnet_ids = module.stg_network.public_subnet_ids
-  tag_environment   = "stg"
+  tag_environment   = var.stg_tag
 }
 
 module "stg_was" {
@@ -53,5 +53,5 @@ module "stg_was" {
   sg_was           = module.stg_network.sg_was
   target_group_arn = module.stg_alb.target_group_arn
   public_subnet_ids = module.stg_network.public_subnet_ids
-  tag_environment   = "stg"
+  tag_environment   = var.stg_tag
 }

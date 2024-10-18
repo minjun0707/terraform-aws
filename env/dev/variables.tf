@@ -14,4 +14,14 @@ variable "dev_key_name" {
   type = string
 }
 
+variable "dev_bucket_name" {
+  type = string
+}
+
+variable "dev_tag" {
+  type = string
+}
+
+
+
 

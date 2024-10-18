@@ -16,5 +16,5 @@ module "vpc" {
   single_nat_gateway = true
   one_nat_gateway_per_az = false
 
-  tags = { Environment = "dev" }
+  tags = { Environment = var.tag_environment }
 }
